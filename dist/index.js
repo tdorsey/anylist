@@ -31,6 +31,13 @@ var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: tru
 var index_exports = {};
 __export(index_exports, {
   AnyList: () => AnyList,
+  Ingredient: () => Ingredient,
+  Item: () => Item,
+  List: () => List,
+  MealPlanningCalendarEvent: () => MealPlanningCalendarEvent,
+  MealPlanningCalendarEventLabel: () => MealPlanningCalendarEventLabel,
+  Recipe: () => Recipe,
+  RecipeCollection: () => RecipeCollection,
   default: () => index_default
 });
 module.exports = __toCommonJS(index_exports);
@@ -6738,9 +6745,9 @@ var Item = class {
     this._fieldsToUpdate.push("manualSortIndex");
   }
   /**
-   * Save local changes to item to AnyList's API.
-   * Must set `isFavorite=true` if editing "favorites" list
-   */
+    * Save local changes to item to AnyList's API.
+    * Must set `isFavorite=true` if editing "favorites" list
+    */
   async save(isFavorite = false) {
     const ops = this._fieldsToUpdate.map((field) => {
       const value = this[field];
@@ -6754,7 +6761,7 @@ var Item = class {
       op.setListId(this._listId);
       op.setListItemId(this._identifier);
       if (typeof value === "boolean") {
-        op.setUpdatedValue(value === true ? "y" : "n");
+        op.setUpdatedValue(value ? "y" : "n");
       } else {
         op.setUpdatedValue(value.toString());
       }
@@ -6785,10 +6792,10 @@ var List = class {
     this.uid = context.uid;
   }
   /**
-   * Adds an item to this list.
-   * Will also save item to local copy of list.
-   * Must set `isFavorite=true` if editing "favorites" list
-   */
+    * Adds an item to this list.
+    * Will also save item to local copy of list.
+    * Must set `isFavorite=true` if editing "favorites" list
+    */
   async addItem(item, isFavorite = false) {
     if (!(item instanceof Item)) {
       throw new TypeError("Must be an instance of the Item class.");
@@ -6817,8 +6824,8 @@ var List = class {
     return item;
   }
   /**
-   * Uncheck all items in a list
-   */
+    * Uncheck all items in a list
+    */
   async uncheckAll() {
     const op = new this.protobuf.PBListOperation();
     op.setMetadata({
@@ -6836,10 +6843,10 @@ var List = class {
     });
   }
   /**
-   * Remove an item from this list.
-   * Will also remove item from local copy of list.
-   * Must set `isFavorite=true` if editing "favorites" list
-   */
+    * Remove an item from this list.
+    * Will also remove item from local copy of list.
+    * Must set `isFavorite=true` if editing "favorites" list
+    */
   async removeItem(item, isFavorite = false) {
     const op = new this.protobuf.PBListOperation();
     op.setMetadata({
@@ -6863,14 +6870,14 @@ var List = class {
     this.items = this.items.filter((i) => i.identifier !== item.identifier);
   }
   /**
-   * Get Item from List by identifier.
-   */
+    * Get Item from List by identifier.
+    */
   getItemById(identifier) {
     return this.items.find((i) => i.identifier === identifier);
   }
   /**
-   * Get Item from List by name.
-   */
+    * Get Item from List by name.
+    */
   getItemByName(name) {
     return this.items.find((i) => i.name === name);
   }
@@ -6988,8 +6995,8 @@ var Recipe = class {
     });
   }
   /**
-   * Perform a recipe operation.
-   */
+    * Perform a recipe operation.
+    */
   async performOperation(handlerId) {
     const ops = new this.protobuf.PBRecipeOperationList();
     const op = new this.protobuf.PBRecipeOperation();
@@ -7009,14 +7016,14 @@ var Recipe = class {
     });
   }
   /**
-   * Save local changes to recipe to AnyList's API.
-   */
+    * Save local changes to recipe to AnyList's API.
+    */
   async save() {
     await this.performOperation("save-recipe");
   }
   /**
-   * Delete local changes to recipe to AnyList's API.
-   */
+    * Delete local changes to recipe to AnyList's API.
+    */
   async delete() {
     await this.performOperation("remove-recipe");
   }
@@ -7046,8 +7053,8 @@ var RecipeCollection = class {
     });
   }
   /**
-   * Perform a recipe operation.
-   */
+    * Perform a recipe operation.
+    */
   async performOperation(handlerId) {
     const ops = new this.protobuf.PBRecipeOperationList();
     const op = new this.protobuf.PBRecipeOperation();
@@ -7066,20 +7073,20 @@ var RecipeCollection = class {
     });
   }
   /**
-   * Save local changes to recipe to AnyList's API.
-   */
+    * Save local changes to recipe to AnyList's API.
+    */
   async save() {
     await this.performOperation("new-recipe-collection");
   }
   /**
-   * Delete a recipe collection from AnyList.
-   */
+    * Delete a recipe collection from AnyList.
+    */
   async delete() {
     await this.performOperation("remove-recipe-collection");
   }
   /**
-   * Adds an existing recipe to an existing recipe-collection on AnyList.
-   */
+    * Adds an existing recipe to an existing recipe-collection on AnyList.
+    */
   async addRecipe(recipeId) {
     if (recipeId) {
       this.recipeIds.push(recipeId);
@@ -7087,8 +7094,8 @@ var RecipeCollection = class {
     }
   }
   /**
-   * Remove existing recipe from an existing recipe-collection on AnyList.
-   */
+    * Remove existing recipe from an existing recipe-collection on AnyList.
+    */
   async removeRecipe(recipeId) {
     const recipeIdPos = this.recipeIds.indexOf(recipeId);
     if (recipeIdPos > -1) {
@@ -7102,8 +7109,6 @@ var RecipeCollection = class {
 var import_form_data5 = __toESM(require("form-data"));
 var MealPlanningCalendarEvent = class {
   constructor(event, context) {
-    this.recipe = null;
-    this.label = null;
     this.identifier = event.identifier || uuid_default();
     this.date = typeof event.date === "string" ? new Date(event.date) : event.date || /* @__PURE__ */ new Date();
     this.details = event.details;
@@ -7153,8 +7158,8 @@ var MealPlanningCalendarEvent = class {
     });
   }
   /**
-   * Perform a recipe operation.
-   */
+    * Perform a recipe operation.
+    */
   async performOperation(handlerId) {
     const ops = new this._protobuf.PBCalendarOperationList();
     const op = new this._protobuf.PBCalendarOperation();
@@ -7173,15 +7178,15 @@ var MealPlanningCalendarEvent = class {
     });
   }
   /**
-   * Save local changes to the calendar event to AnyList's API.
-   */
+    * Save local changes to the calendar event to AnyList's API.
+    */
   async save() {
     const operation = this._isNew ? "new-event" : "set-event-details";
     await this.performOperation(operation);
   }
   /**
-   * Delete this event from the calendar via AnyList's API.
-   */
+    * Delete this event from the calendar via AnyList's API.
+    */
   async delete() {
     await this.performOperation("delete-event");
   }
@@ -7243,7 +7248,7 @@ var AnyList = class extends import_events.EventEmitter {
               authorization: `Bearer ${this.accessToken}`,
               ...options2.headers
             };
-            const pathname = options2.url.pathname;
+            const { pathname } = options2.url;
             if (pathname.startsWith("/data/")) {
               options2.responseType = "buffer";
             }
@@ -7280,8 +7285,8 @@ var AnyList = class extends import_events.EventEmitter {
     this.protobuf = protobuf.newBuilder({}).import(definitions_exports).build("pcov.proto");
   }
   /**
-   * Log into the AnyList account provided in the constructor.
-   */
+    * Log into the AnyList account provided in the constructor.
+    */
   async login(connectWebSocket = true) {
     await this._loadCredentials();
     this.clientId = await this._getClientId();
@@ -7415,8 +7420,8 @@ var AnyList = class extends import_events.EventEmitter {
     });
   }
   /**
-   * Call when you're ready for your program to exit.
-   */
+    * Call when you're ready for your program to exit.
+    */
   teardown() {
     if (this._heartbeatPing) {
       clearInterval(this._heartbeatPing);
@@ -7426,8 +7431,8 @@ var AnyList = class extends import_events.EventEmitter {
     }
   }
   /**
-   * Load all lists from account into memory.
-   */
+    * Load all lists from account into memory.
+    */
   async getLists(refreshCache = true) {
     const decoded = await this._getUserData(refreshCache);
     const context = {
@@ -7450,26 +7455,26 @@ var AnyList = class extends import_events.EventEmitter {
     return this.lists;
   }
   /**
-   * Get List instance by ID.
-   */
+    * Get List instance by ID.
+    */
   getListById(identifier) {
     return this.lists.find((l) => l.identifier === identifier);
   }
   /**
-   * Get List instance by name.
-   */
+    * Get List instance by name.
+    */
   getListByName(name) {
     return this.lists.find((l) => l.name === name);
   }
   /**
-   * Get favorite items for a list.
-   */
+    * Get favorite items for a list.
+    */
   getFavoriteItemsByListId(identifier) {
     return this.favoriteItems.find((l) => l.parentId === identifier);
   }
   /**
-   * Load all meal planning calendar events from account into memory.
-   */
+    * Load all meal planning calendar events from account into memory.
+    */
   async getMealPlanningCalendarEvents(refreshCache = true) {
     const decoded = await this._getUserData(refreshCache);
     const context = {
@@ -7503,14 +7508,14 @@ var AnyList = class extends import_events.EventEmitter {
     return this.mealPlanningCalendarEvents || [];
   }
   /**
-   * Get the recently added items for a list
-   */
+    * Get the recently added items for a list
+    */
   getRecentItemsByListId(listId) {
     return this.recentItems[listId];
   }
   /**
-   * Factory function to create new Items.
-   */
+    * Factory function to create new Items.
+    */
   createItem(item) {
     return new Item(item, {
       client: this.client,
@@ -7519,8 +7524,8 @@ var AnyList = class extends import_events.EventEmitter {
     });
   }
   /**
-   * Factory function to create a new MealPlanningCalendarEvent.
-   */
+    * Factory function to create a new MealPlanningCalendarEvent.
+    */
   async createEvent(eventObject) {
     if (!this.calendarId) {
       await this._getUserData();
@@ -7533,8 +7538,8 @@ var AnyList = class extends import_events.EventEmitter {
     });
   }
   /**
-   * Load all recipes from account into memory.
-   */
+    * Load all recipes from account into memory.
+    */
   async getRecipes(refreshCache = true) {
     const decoded = await this._getUserData(refreshCache);
     this.recipes = decoded.recipeDataResponse.recipes.map((recipe) => new Recipe(recipe, {
@@ -7547,8 +7552,8 @@ var AnyList = class extends import_events.EventEmitter {
     return this.recipes;
   }
   /**
-   * Factory function to create new Recipes.
-   */
+    * Factory function to create new Recipes.
+    */
   async createRecipe(recipe) {
     if (!this.recipeDataId) {
       await this.getRecipes();
@@ -7561,8 +7566,8 @@ var AnyList = class extends import_events.EventEmitter {
     });
   }
   /**
-   * Factory function to create new Recipe Collections.
-   */
+    * Factory function to create new Recipe Collections.
+    */
   createRecipeCollection(recipeCollection) {
     return new RecipeCollection(recipeCollection, {
       client: this.client,
@@ -7594,6 +7599,13 @@ var AuthenticatedWebSocket = class _AuthenticatedWebSocket extends import_ws.def
 var index_default = AnyList;
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
-  AnyList
+  AnyList,
+  Ingredient,
+  Item,
+  List,
+  MealPlanningCalendarEvent,
+  MealPlanningCalendarEventLabel,
+  Recipe,
+  RecipeCollection
 });
 //# sourceMappingURL=index.js.map
