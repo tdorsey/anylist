@@ -4,6 +4,9 @@
 # Playground
 dev.js
 
+# Generated documentation (created by CI)
+docs/
+
 # Logs
 logs
 *.log
