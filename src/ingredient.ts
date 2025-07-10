@@ -1,4 +1,4 @@
-import {type AnyListContext} from './types';
+import {type AnyListContext} from '../lib/types';
 
 export type IngredientData = {
 	rawIngredient?: string;

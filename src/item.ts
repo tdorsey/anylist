@@ -1,16 +1,38 @@
 import FormData from 'form-data';
-import {type AnyListContext} from './types';
-import uuid from './uuid';
+import {type AnyListContext} from '../lib/types';
+import uuid from '../lib/uuid';
 
+/**
+ * Data structure for shopping list item information.
+ * 
+ * @example
+ * ```typescript
+ * const itemData: ItemData = {
+ *   name: 'Organic Milk',
+ *   quantity: '1 gallon',
+ *   details: 'Low-fat, organic',
+ *   checked: false
+ * };
+ * ```
+ */
 export type ItemData = {
+	/** ID of the list this item belongs to */
 	listId?: string;
+	/** Unique identifier for the item */
 	identifier?: string;
+	/** Display name of the item */
 	name?: string;
+	/** Additional details or notes about the item */
 	details?: string;
+	/** Quantity to purchase (e.g., "2 lbs", "1 dozen") */
 	quantity?: string;
+	/** Whether the item has been checked off the list */
 	checked?: boolean;
+	/** Manual sort order index for custom ordering */
 	manualSortIndex?: number;
+	/** ID of the user who added this item */
 	userId?: string;
+	/** Category match ID for automatic categorization */
 	categoryMatchId?: string;
 };
 
@@ -24,7 +46,28 @@ const OP_MAPPING: Record<string, string> = {
 };
 
 /**
- * Item class for list items.
+ * Represents an individual item in a shopping list with methods for modification.
+ * 
+ * @example
+ * ```typescript
+ * // Create a new item
+ * const item = new Item({
+ *   name: 'Bananas',
+ *   quantity: '6',
+ *   details: 'Ripe, for smoothies'
+ * }, context);
+ * 
+ * // Mark item as purchased
+ * item.checked = true;
+ * await item.save();
+ * 
+ * // Update item properties
+ * item.quantity = '12';
+ * item.details = 'Extra for baking';
+ * await item.save();
+ * ```
+ * 
+ * @see {@link List} List class for managing collections of items
  */
 export class Item {
 	private _listId?: string;

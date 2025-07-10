@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 
-type AnyListContext$1 = {
+type AnyListContext = {
     client: any;
     protobuf: any;
     uid?: string;
@@ -10,19 +10,62 @@ type AnyListContext$1 = {
     calendarId?: string;
 };
 
+/**
+ * Data structure for shopping list item information.
+ *
+ * @example
+ * ```typescript
+ * const itemData: ItemData = {
+ *   name: 'Organic Milk',
+ *   quantity: '1 gallon',
+ *   details: 'Low-fat, organic',
+ *   checked: false
+ * };
+ * ```
+ */
 type ItemData = {
+    /** ID of the list this item belongs to */
     listId?: string;
+    /** Unique identifier for the item */
     identifier?: string;
+    /** Display name of the item */
     name?: string;
+    /** Additional details or notes about the item */
     details?: string;
+    /** Quantity to purchase (e.g., "2 lbs", "1 dozen") */
     quantity?: string;
+    /** Whether the item has been checked off the list */
     checked?: boolean;
+    /** Manual sort order index for custom ordering */
     manualSortIndex?: number;
+    /** ID of the user who added this item */
     userId?: string;
+    /** Category match ID for automatic categorization */
     categoryMatchId?: string;
 };
 /**
- * Item class for list items.
+ * Represents an individual item in a shopping list with methods for modification.
+ *
+ * @example
+ * ```typescript
+ * // Create a new item
+ * const item = new Item({
+ *   name: 'Bananas',
+ *   quantity: '6',
+ *   details: 'Ripe, for smoothies'
+ * }, context);
+ *
+ * // Mark item as purchased
+ * item.checked = true;
+ * await item.save();
+ *
+ * // Update item properties
+ * item.quantity = '12';
+ * item.details = 'Extra for baking';
+ * await item.save();
+ * ```
+ *
+ * @see {@link List} List class for managing collections of items
  */
 declare class Item {
     private _listId?;
@@ -38,7 +81,7 @@ declare class Item {
     private readonly _protobuf;
     private readonly _uid?;
     private readonly _fieldsToUpdate;
-    constructor(item: ItemData, context: AnyListContext$1);
+    constructor(item: ItemData, context: AnyListContext);
     toJSON(): ItemData;
     _encode(): any;
     get identifier(): string;
@@ -66,14 +109,43 @@ declare class Item {
     save(isFavorite?: boolean): Promise<void>;
 }
 
+/**
+ * Data structure for shopping list information.
+ *
+ * @example
+ * ```typescript
+ * const listData: ListData = {
+ *   identifier: 'list-123',
+ *   listId: 'parent-456',
+ *   name: 'Grocery Shopping',
+ *   items: []
+ * };
+ * ```
+ */
 type ListData = {
+    /** Unique identifier for the list */
     identifier?: string;
+    /** Parent list ID if this is a sub-list */
     listId?: string;
+    /** Display name of the list */
     name?: string;
+    /** Array of items in this list */
     items?: ItemData[];
 };
 /**
- * List class for managing shopping lists.
+ * Represents a shopping list with items and list management capabilities.
+ *
+ * @example
+ * ```typescript
+ * // Access list properties
+ * console.log(`List: ${list.name} has ${list.items.length} items`);
+ *
+ * // Add an item to the list
+ * const newItem = list.addItem({ name: 'Milk', quantity: '1 gallon' });
+ * await list.saveItem(newItem);
+ * ```
+ *
+ * @see {@link Item} Item class for managing individual list items
  */
 declare class List {
     readonly identifier?: string;
@@ -83,7 +155,7 @@ declare class List {
     private readonly client;
     private readonly protobuf;
     private readonly uid?;
-    constructor(list: ListData, context: AnyListContext$1);
+    constructor(list: ListData, context: AnyListContext);
     /**
    * Adds an item to this list.
    * Will also save item to local copy of list.
@@ -128,7 +200,7 @@ declare class Ingredient {
     private readonly _protobuf;
     private readonly _uid?;
     private readonly _fieldsToUpdate;
-    constructor(ingredient: IngredientData, context: AnyListContext$1);
+    constructor(ingredient: IngredientData, context: AnyListContext);
     toJSON(): IngredientData;
     _encode(): any;
     get rawIngredient(): string | undefined;
@@ -141,29 +213,94 @@ declare class Ingredient {
     set note(n: string | undefined);
 }
 
+/**
+ * Data structure for recipe information with full metadata.
+ *
+ * @example
+ * ```typescript
+ * const recipeData: RecipeData = {
+ *   name: 'Chocolate Chip Cookies',
+ *   note: 'Family favorite recipe',
+ *   sourceName: 'Grandma\'s Recipe Book',
+ *   sourceUrl: 'https://example.com/recipe',
+ *   ingredients: [
+ *     { name: 'Flour', quantity: '2 cups' },
+ *     { name: 'Sugar', quantity: '1 cup' }
+ *   ],
+ *   preparationSteps: [
+ *     'Preheat oven to 350°F',
+ *     'Mix dry ingredients',
+ *     'Add wet ingredients and mix'
+ *   ],
+ *   cookTime: 15,
+ *   prepTime: 20,
+ *   servings: '24 cookies',
+ *   rating: 5
+ * };
+ * ```
+ */
 type RecipeData = {
+    /** Unique identifier for the recipe */
     identifier?: string;
+    /** Timestamp when recipe was last modified */
     timestamp?: number;
+    /** Recipe title/name */
     name?: string;
+    /** Additional notes or description */
     note?: string;
+    /** Name of the recipe source (cookbook, website, etc.) */
     sourceName?: string;
+    /** URL where the recipe was found */
     sourceUrl?: string;
+    /** List of ingredients with quantities */
     ingredients?: IngredientData[];
+    /** Step-by-step cooking instructions */
     preparationSteps?: string[];
+    /** Array of photo IDs associated with this recipe */
     photoIds?: string[];
+    /** Advertisement campaign ID if applicable */
     adCampaignId?: string;
+    /** URLs of recipe photos */
     photoUrls?: string[];
+    /** Scaling factor for adjusting serving sizes */
     scaleFactor?: number;
+    /** User rating (typically 1-5 stars) */
     rating?: number;
+    /** Timestamp when recipe was created */
     creationTimestamp?: number;
+    /** Nutritional information as a string */
     nutritionalInfo?: string;
+    /** Cooking time in minutes */
     cookTime?: number;
+    /** Preparation time in minutes */
     prepTime?: number;
+    /** Number of servings this recipe makes */
     servings?: string;
+    /** Paprika app identifier for imported recipes */
     paprikaIdentifier?: string;
 };
 /**
- * Recipe class for managing recipes.
+ * Represents a recipe with ingredients, instructions, and metadata.
+ *
+ * @example
+ * ```typescript
+ * // Access recipe properties
+ * console.log(`Recipe: ${recipe.name}`);
+ * console.log(`Prep time: ${recipe.prepTime} minutes`);
+ * console.log(`Serves: ${recipe.servings}`);
+ *
+ * // Work with ingredients
+ * recipe.ingredients.forEach(ingredient => {
+ *   console.log(`${ingredient.quantity} ${ingredient.name}`);
+ * });
+ *
+ * // Update recipe rating
+ * recipe.rating = 5;
+ * await recipe.save();
+ * ```
+ *
+ * @see {@link Ingredient} Ingredient class for recipe ingredients
+ * @see {@link RecipeCollection} RecipeCollection class for organizing recipes
  */
 declare class Recipe {
     readonly identifier: string;
@@ -189,7 +326,7 @@ declare class Recipe {
     private readonly protobuf;
     private readonly uid?;
     private readonly recipeDataId?;
-    constructor(recipe: RecipeData, context: AnyListContext$1);
+    constructor(recipe: RecipeData, context: AnyListContext);
     _encode(): any;
     /**
    * Perform a recipe operation.
@@ -223,7 +360,7 @@ declare class RecipeCollection {
     private readonly protobuf;
     private readonly uid?;
     private readonly recipeDataId?;
-    constructor(recipeCollection: RecipeCollectionData, context: AnyListContext$1);
+    constructor(recipeCollection: RecipeCollectionData, context: AnyListContext);
     _encode(): any;
     /**
    * Perform a recipe operation.
@@ -299,7 +436,7 @@ declare class MealPlanningCalendarEvent {
     private readonly _uid?;
     private readonly _isNew;
     private readonly _calendarId?;
-    constructor(event: MealPlanningCalendarEventData, context: AnyListContext$1);
+    constructor(event: MealPlanningCalendarEventData, context: AnyListContext);
     toJSON(): MealPlanningCalendarEventData & {
         calendarId?: string;
         labelSortIndex?: number;
@@ -319,19 +456,28 @@ declare class MealPlanningCalendarEvent {
     delete(): Promise<void>;
 }
 
+/**
+ * Configuration options for the AnyList client.
+ *
+ * @example
+ * ```typescript
+ * const options: AnyListOptions = {
+ *   email: 'user@example.com',
+ *   password: 'your-password',
+ *   credentialsFile: './my-anylist-credentials' // optional
+ * };
+ * ```
+ */
 type AnyListOptions = {
+    /** Your AnyList account email address */
     email: string;
+    /** Your AnyList account password */
     password: string;
+    /**
+     * Optional path to store authentication credentials.
+     * Defaults to ~/.anylist_credentials
+     */
     credentialsFile?: string | undefined;
-};
-type AnyListContext = {
-    client: any;
-    protobuf: any;
-    uid?: string;
-    accessToken?: string;
-    clientId?: string;
-    recipeDataId?: string;
-    calendarId?: string;
 };
 type StoredCredentials = {
     clientId?: string;
@@ -370,9 +516,40 @@ type UserDataResponse = {
 };
 type NutritionalInfo = Record<string, string | number>;
 /**
- * AnyList class. There should be one instance per account.
+ * AnyList API client for managing shopping lists, recipes, and meal planning.
+ *
+ * @example
+ * ```typescript
+ * import AnyList from 'anylist';
+ *
+ * const client = new AnyList({
+ *   email: 'user@example.com',
+ *   password: 'your-password'
+ * });
+ *
+ * await client.login();
+ * const lists = await client.getLists();
+ * console.log('Found lists:', lists.map(l => l.name));
+ * ```
+ *
+ * @example
+ * ```javascript
+ * // JavaScript usage (CommonJS)
+ * const AnyList = require('anylist');
+ *
+ * const client = new AnyList({
+ *   email: 'user@example.com',
+ *   password: 'your-password'
+ * });
+ *
+ * client.login().then(async () => {
+ *   const lists = await client.getLists();
+ *   console.log('Found lists:', lists.map(l => l.name));
+ * });
+ * ```
  *
  * @fires AnyList#lists-update
+ * @see {@link https://www.anylist.com} AnyList website
  */
 declare class AnyList extends EventEmitter {
     lists: List[];
@@ -395,10 +572,37 @@ declare class AnyList extends EventEmitter {
     private _userData?;
     private ws?;
     private _heartbeatPing?;
+    /**
+     * Creates a new AnyList client instance.
+     *
+     * @param options - Configuration options for the client
+     *
+     * @example
+     * ```typescript
+     * const client = new AnyList({
+     *   email: 'user@example.com',
+     *   password: 'your-password'
+     * });
+     * ```
+     */
     constructor(options: AnyListOptions);
     /**
-   * Log into the AnyList account provided in the constructor.
-   */
+     * Authenticates with AnyList using the provided credentials.
+     * Automatically handles token storage and refresh.
+     *
+     * @param connectWebSocket - Whether to establish WebSocket connection for real-time updates. Defaults to true.
+     *
+     * @example
+     * ```typescript
+     * await client.login();
+     * console.log('Successfully logged in!');
+     *
+     * // Login without WebSocket connection
+     * await client.login(false);
+     * ```
+     *
+     * @throws {Error} When authentication fails due to invalid credentials
+     */
     login(connectWebSocket?: boolean): Promise<void>;
     private _fetchTokens;
     private _refreshTokens;
@@ -413,8 +617,23 @@ declare class AnyList extends EventEmitter {
    */
     teardown(): void;
     /**
-   * Load all lists from account into memory.
-   */
+     * Retrieves all shopping lists from your AnyList account.
+     *
+     * @param refreshCache - Whether to fetch fresh data from server. Defaults to true.
+     * @returns Promise that resolves to an array of List objects
+     *
+     * @example
+     * ```typescript
+     * // Get all lists with fresh data
+     * const lists = await client.getLists();
+     * console.log('Your lists:', lists.map(list => list.name));
+     *
+     * // Use cached data (faster)
+     * const cachedLists = await client.getLists(false);
+     * ```
+     *
+     * @see {@link List} List class documentation
+     */
     getLists(refreshCache?: boolean): Promise<List[]>;
     /**
    * Get List instance by ID.
@@ -459,4 +678,4 @@ declare class AnyList extends EventEmitter {
     private _getUserData;
 }
 
-export { AnyList, type AnyListContext, type AnyListOptions, type AuthTokenResponse, Ingredient, type IngredientData, Item, type ItemData, List, type ListData, MealPlanningCalendarEvent, type MealPlanningCalendarEventData, MealPlanningCalendarEventLabel, type MealPlanningCalendarLabelData, type NutritionalInfo, Recipe, RecipeCollection, type RecipeCollectionData, type RecipeData, type StoredCredentials, type UserDataResponse, AnyList as default };
+export { AnyList, type AnyListOptions, type AuthTokenResponse, Ingredient, type IngredientData, Item, type ItemData, List, type ListData, MealPlanningCalendarEvent, type MealPlanningCalendarEventData, MealPlanningCalendarEventLabel, type MealPlanningCalendarLabelData, type NutritionalInfo, Recipe, RecipeCollection, type RecipeCollectionData, type RecipeData, type StoredCredentials, type UserDataResponse, AnyList as default };

@@ -13,28 +13,35 @@ import FormData from 'form-data';
 import * as definitions from './definitions.json';
 import {List, type ListData} from './list';
 import {Item, type ItemData} from './item';
-import uuid from './uuid';
+import uuid from '../lib/uuid';
+import {type AnyListContext} from '../lib/types';
 import {Recipe, type RecipeData} from './recipe';
 import {RecipeCollection, type RecipeCollectionData} from './recipe-collection';
 import {MealPlanningCalendarEvent, type MealPlanningCalendarEventData} from './meal-planning-calendar-event';
 import {MealPlanningCalendarEventLabel, type MealPlanningCalendarLabelData} from './meal-planning-calendar-label';
 
-// Core AnyList configuration and API types
+/**
+ * Configuration options for the AnyList client.
+ * 
+ * @example
+ * ```typescript
+ * const options: AnyListOptions = {
+ *   email: 'user@example.com',
+ *   password: 'your-password',
+ *   credentialsFile: './my-anylist-credentials' // optional
+ * };
+ * ```
+ */
 export type AnyListOptions = {
+	/** Your AnyList account email address */
 	email: string;
+	/** Your AnyList account password */
 	password: string;
+	/** 
+	 * Optional path to store authentication credentials.
+	 * Defaults to ~/.anylist_credentials 
+	 */
 	credentialsFile?: string | undefined;
-};
-
-// Internal context interface for dependency injection
-export type AnyListContext = {
-	client: any; // Got instance
-	protobuf: any; // Protobuf definitions
-	uid?: string;
-	accessToken?: string;
-	clientId?: string;
-	recipeDataId?: string;
-	calendarId?: string;
 };
 
 // Credentials storage
@@ -85,9 +92,40 @@ const CREDENTIALS_KEY_ACCESS_TOKEN = 'accessToken';
 const CREDENTIALS_KEY_REFRESH_TOKEN = 'refreshToken';
 
 /**
- * AnyList class. There should be one instance per account.
- *
+ * AnyList API client for managing shopping lists, recipes, and meal planning.
+ * 
+ * @example
+ * ```typescript
+ * import AnyList from 'anylist';
+ * 
+ * const client = new AnyList({
+ *   email: 'user@example.com',
+ *   password: 'your-password'
+ * });
+ * 
+ * await client.login();
+ * const lists = await client.getLists();
+ * console.log('Found lists:', lists.map(l => l.name));
+ * ```
+ * 
+ * @example
+ * ```javascript
+ * // JavaScript usage (CommonJS)
+ * const AnyList = require('anylist');
+ * 
+ * const client = new AnyList({
+ *   email: 'user@example.com',
+ *   password: 'your-password'
+ * });
+ * 
+ * client.login().then(async () => {
+ *   const lists = await client.getLists();
+ *   console.log('Found lists:', lists.map(l => l.name));
+ * });
+ * ```
+ * 
  * @fires AnyList#lists-update
+ * @see {@link https://www.anylist.com} AnyList website
  */
 export class AnyList extends EventEmitter {
 	public lists: List[] = [];
@@ -112,6 +150,19 @@ export class AnyList extends EventEmitter {
 	private ws?: WebSocket;
 	private _heartbeatPing?: NodeJS.Timeout;
 
+	/**
+	 * Creates a new AnyList client instance.
+	 * 
+	 * @param options - Configuration options for the client
+	 * 
+	 * @example
+	 * ```typescript
+	 * const client = new AnyList({
+	 *   email: 'user@example.com',
+	 *   password: 'your-password'
+	 * });
+	 * ```
+	 */
 	constructor(options: AnyListOptions) {
 		super();
 
@@ -192,8 +243,22 @@ export class AnyList extends EventEmitter {
 	}
 
 	/**
-   * Log into the AnyList account provided in the constructor.
-   */
+	 * Authenticates with AnyList using the provided credentials.
+	 * Automatically handles token storage and refresh.
+	 * 
+	 * @param connectWebSocket - Whether to establish WebSocket connection for real-time updates. Defaults to true.
+	 * 
+	 * @example
+	 * ```typescript
+	 * await client.login();
+	 * console.log('Successfully logged in!');
+	 * 
+	 * // Login without WebSocket connection
+	 * await client.login(false);
+	 * ```
+	 * 
+	 * @throws {Error} When authentication fails due to invalid credentials
+	 */
 	async login(connectWebSocket = true): Promise<void> {
 		await this._loadCredentials();
 		this.clientId = await this._getClientId();
@@ -345,16 +410,28 @@ export class AnyList extends EventEmitter {
          *
          * @event AnyList#lists-update
          */
-				this.getLists().then(lists => this.emit('lists-update', lists));
+				(async () => {
+					try {
+						const lists = await this.getLists();
+						this.emit('lists-update', lists);
+					} catch (error) {
+						console.error('Failed to refresh shopping lists:', error);
+					}
+				})();
 			}
 		});
 
 		this.ws.addEventListener('error', (event: any) => {
 			const error = event;
 			console.error(`Disconnected from websocket: ${error.message}`);
-			this._refreshTokens().then(() => {
-				AuthenticatedWebSocket.token = this.accessToken!;
-			});
+			(async () => {
+				try {
+					await this._refreshTokens();
+					AuthenticatedWebSocket.token = this.accessToken!;
+				} catch (refreshError) {
+					console.error('Failed to refresh tokens:', refreshError);
+				}
+			})();
 		});
 	}
 
@@ -372,8 +449,23 @@ export class AnyList extends EventEmitter {
 	}
 
 	/**
-   * Load all lists from account into memory.
-   */
+	 * Retrieves all shopping lists from your AnyList account.
+	 * 
+	 * @param refreshCache - Whether to fetch fresh data from server. Defaults to true.
+	 * @returns Promise that resolves to an array of List objects
+	 * 
+	 * @example
+	 * ```typescript
+	 * // Get all lists with fresh data
+	 * const lists = await client.getLists();
+	 * console.log('Your lists:', lists.map(list => list.name));
+	 * 
+	 * // Use cached data (faster)
+	 * const cachedLists = await client.getLists(false);
+	 * ```
+	 * 
+	 * @see {@link List} List class documentation
+	 */
 	async getLists(refreshCache = true): Promise<List[]> {
 		const decoded = await this._getUserData(refreshCache);
 

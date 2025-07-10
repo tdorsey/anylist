@@ -6615,7 +6615,7 @@ var import_form_data2 = __toESM(require("form-data"));
 // src/item.ts
 var import_form_data = __toESM(require("form-data"));
 
-// src/uuid.ts
+// lib/uuid.ts
 var uuid = __toESM(require("uuid"));
 var uuid_default = () => uuid.v4().replace(/-/g, "");
 
@@ -6629,8 +6629,20 @@ var OP_MAPPING = {
   manualSortIndex: "set-list-item-sort-order"
 };
 var Item = class {
+  _listId;
+  _identifier;
+  _name;
+  _details;
+  _quantity;
+  _checked;
+  _manualSortIndex;
+  _userId;
+  _categoryMatchId;
+  _client;
+  _protobuf;
+  _uid;
+  _fieldsToUpdate = [];
   constructor(item, context) {
-    this._fieldsToUpdate = [];
     this._listId = item.listId;
     this._identifier = item.identifier || uuid_default();
     this._name = item.name;
@@ -6782,6 +6794,13 @@ var Item = class {
 
 // src/list.ts
 var List = class {
+  identifier;
+  parentId;
+  name;
+  items;
+  client;
+  protobuf;
+  uid;
   constructor(list, context) {
     this.identifier = list.identifier;
     this.parentId = list.listId;
@@ -6888,8 +6907,15 @@ var import_form_data3 = __toESM(require("form-data"));
 
 // src/ingredient.ts
 var Ingredient = class {
+  _rawIngredient;
+  _name;
+  _quantity;
+  _note;
+  _client;
+  _protobuf;
+  _uid;
+  _fieldsToUpdate = [];
   constructor(ingredient, context) {
-    this._fieldsToUpdate = [];
     this._rawIngredient = ingredient.rawIngredient;
     this._name = ingredient.name;
     this._quantity = ingredient.quantity;
@@ -6946,6 +6972,29 @@ var Ingredient = class {
 
 // src/recipe.ts
 var Recipe = class {
+  identifier;
+  timestamp;
+  name;
+  note;
+  sourceName;
+  sourceUrl;
+  ingredients;
+  preparationSteps;
+  photoIds;
+  photoUrls;
+  adCampaignId;
+  scaleFactor;
+  rating;
+  creationTimestamp;
+  nutritionalInfo;
+  cookTime;
+  prepTime;
+  servings;
+  paprikaIdentifier;
+  _client;
+  protobuf;
+  uid;
+  recipeDataId;
   constructor(recipe, context) {
     this.identifier = recipe.identifier || uuid_default();
     this.timestamp = recipe.timestamp || Date.now() / 1e3;
@@ -7032,6 +7081,15 @@ var Recipe = class {
 // src/recipe-collection.ts
 var import_form_data4 = __toESM(require("form-data"));
 var RecipeCollection = class {
+  identifier;
+  timestamp;
+  name;
+  recipeIds;
+  collectionSettings;
+  _client;
+  protobuf;
+  uid;
+  recipeDataId;
   constructor(recipeCollection, context) {
     this._client = context.client;
     this.protobuf = context.protobuf;
@@ -7108,6 +7166,22 @@ var RecipeCollection = class {
 // src/meal-planning-calendar-event.ts
 var import_form_data5 = __toESM(require("form-data"));
 var MealPlanningCalendarEvent = class {
+  identifier;
+  date;
+  details;
+  labelId;
+  logicalTimestamp;
+  orderAddedSortIndex;
+  recipeId;
+  recipeScaleFactor;
+  title;
+  recipe;
+  label;
+  _client;
+  _protobuf;
+  _uid;
+  _isNew;
+  _calendarId;
   constructor(event, context) {
     this.identifier = event.identifier || uuid_default();
     this.date = typeof event.date === "string" ? new Date(event.date) : event.date || /* @__PURE__ */ new Date();
@@ -7194,6 +7268,12 @@ var MealPlanningCalendarEvent = class {
 
 // src/meal-planning-calendar-label.ts
 var MealPlanningCalendarEventLabel = class {
+  identifier;
+  calendarId;
+  hexColor;
+  logicalTimestamp;
+  name;
+  sortIndex;
   constructor(label) {
     this.identifier = label.identifier;
     this.calendarId = label.calendarId;
@@ -7209,12 +7289,41 @@ var CREDENTIALS_KEY_CLIENT_ID = "clientId";
 var CREDENTIALS_KEY_ACCESS_TOKEN = "accessToken";
 var CREDENTIALS_KEY_REFRESH_TOKEN = "refreshToken";
 var AnyList = class extends import_events.EventEmitter {
+  lists = [];
+  favoriteItems = [];
+  recentItems = {};
+  recipes = [];
+  mealPlanningCalendarEvents;
+  mealPlanningCalendarEventLabels;
+  recipeDataId;
+  calendarId;
+  email;
+  password;
+  credentialsFile;
+  authClient;
+  client;
+  protobuf;
+  clientId;
+  accessToken;
+  refreshToken;
+  _userData;
+  ws;
+  _heartbeatPing;
+  /**
+   * Creates a new AnyList client instance.
+   * 
+   * @param options - Configuration options for the client
+   * 
+   * @example
+   * ```typescript
+   * const client = new AnyList({
+   *   email: 'user@example.com',
+   *   password: 'your-password'
+   * });
+   * ```
+   */
   constructor(options) {
     super();
-    this.lists = [];
-    this.favoriteItems = [];
-    this.recentItems = {};
-    this.recipes = [];
     this.email = options.email;
     this.password = options.password;
     this.credentialsFile = options.credentialsFile ?? import_path.default.join(import_os.default.homedir(), ".anylist_credentials");
@@ -7285,8 +7394,22 @@ var AnyList = class extends import_events.EventEmitter {
     this.protobuf = protobuf.newBuilder({}).import(definitions_exports).build("pcov.proto");
   }
   /**
-    * Log into the AnyList account provided in the constructor.
-    */
+   * Authenticates with AnyList using the provided credentials.
+   * Automatically handles token storage and refresh.
+   * 
+   * @param connectWebSocket - Whether to establish WebSocket connection for real-time updates. Defaults to true.
+   * 
+   * @example
+   * ```typescript
+   * await client.login();
+   * console.log('Successfully logged in!');
+   * 
+   * // Login without WebSocket connection
+   * await client.login(false);
+   * ```
+   * 
+   * @throws {Error} When authentication fails due to invalid credentials
+   */
   async login(connectWebSocket = true) {
     await this._loadCredentials();
     this.clientId = await this._getClientId();
@@ -7408,15 +7531,27 @@ var AnyList = class extends import_events.EventEmitter {
       const { data } = event;
       if (data === "refresh-shopping-lists") {
         console.info("Refreshing shopping lists");
-        this.getLists().then((lists) => this.emit("lists-update", lists));
+        (async () => {
+          try {
+            const lists = await this.getLists();
+            this.emit("lists-update", lists);
+          } catch (error) {
+            console.error("Failed to refresh shopping lists:", error);
+          }
+        })();
       }
     });
     this.ws.addEventListener("error", (event) => {
       const error = event;
       console.error(`Disconnected from websocket: ${error.message}`);
-      this._refreshTokens().then(() => {
-        AuthenticatedWebSocket.token = this.accessToken;
-      });
+      (async () => {
+        try {
+          await this._refreshTokens();
+          AuthenticatedWebSocket.token = this.accessToken;
+        } catch (refreshError) {
+          console.error("Failed to refresh tokens:", refreshError);
+        }
+      })();
     });
   }
   /**
@@ -7431,8 +7566,23 @@ var AnyList = class extends import_events.EventEmitter {
     }
   }
   /**
-    * Load all lists from account into memory.
-    */
+   * Retrieves all shopping lists from your AnyList account.
+   * 
+   * @param refreshCache - Whether to fetch fresh data from server. Defaults to true.
+   * @returns Promise that resolves to an array of List objects
+   * 
+   * @example
+   * ```typescript
+   * // Get all lists with fresh data
+   * const lists = await client.getLists();
+   * console.log('Your lists:', lists.map(list => list.name));
+   * 
+   * // Use cached data (faster)
+   * const cachedLists = await client.getLists(false);
+   * ```
+   * 
+   * @see {@link List} List class documentation
+   */
   async getLists(refreshCache = true) {
     const decoded = await this._getUserData(refreshCache);
     const context = {
@@ -7586,6 +7736,8 @@ var AnyList = class extends import_events.EventEmitter {
   }
 };
 var AuthenticatedWebSocket = class _AuthenticatedWebSocket extends import_ws.default {
+  static token;
+  static clientId;
   constructor(url, protocols) {
     super(url, protocols, {
       headers: {

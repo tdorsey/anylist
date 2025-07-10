@@ -1,32 +1,97 @@
 import FormData from 'form-data';
-import {type AnyListContext} from './types';
+import {type AnyListContext} from '../lib/types';
 import {Ingredient, type IngredientData} from './ingredient';
-import uuid from './uuid';
+import uuid from '../lib/uuid';
 
+/**
+ * Data structure for recipe information with full metadata.
+ * 
+ * @example
+ * ```typescript
+ * const recipeData: RecipeData = {
+ *   name: 'Chocolate Chip Cookies',
+ *   note: 'Family favorite recipe',
+ *   sourceName: 'Grandma\'s Recipe Book',
+ *   sourceUrl: 'https://example.com/recipe',
+ *   ingredients: [
+ *     { name: 'Flour', quantity: '2 cups' },
+ *     { name: 'Sugar', quantity: '1 cup' }
+ *   ],
+ *   preparationSteps: [
+ *     'Preheat oven to 350°F',
+ *     'Mix dry ingredients',
+ *     'Add wet ingredients and mix'
+ *   ],
+ *   cookTime: 15,
+ *   prepTime: 20,
+ *   servings: '24 cookies',
+ *   rating: 5
+ * };
+ * ```
+ */
 export type RecipeData = {
+	/** Unique identifier for the recipe */
 	identifier?: string;
+	/** Timestamp when recipe was last modified */
 	timestamp?: number;
+	/** Recipe title/name */
 	name?: string;
+	/** Additional notes or description */
 	note?: string;
+	/** Name of the recipe source (cookbook, website, etc.) */
 	sourceName?: string;
+	/** URL where the recipe was found */
 	sourceUrl?: string;
+	/** List of ingredients with quantities */
 	ingredients?: IngredientData[];
+	/** Step-by-step cooking instructions */
 	preparationSteps?: string[];
+	/** Array of photo IDs associated with this recipe */
 	photoIds?: string[];
+	/** Advertisement campaign ID if applicable */
 	adCampaignId?: string;
+	/** URLs of recipe photos */
 	photoUrls?: string[];
+	/** Scaling factor for adjusting serving sizes */
 	scaleFactor?: number;
+	/** User rating (typically 1-5 stars) */
 	rating?: number;
+	/** Timestamp when recipe was created */
 	creationTimestamp?: number;
+	/** Nutritional information as a string */
 	nutritionalInfo?: string;
+	/** Cooking time in minutes */
 	cookTime?: number;
+	/** Preparation time in minutes */
 	prepTime?: number;
+	/** Number of servings this recipe makes */
 	servings?: string;
+	/** Paprika app identifier for imported recipes */
 	paprikaIdentifier?: string;
 };
 
 /**
- * Recipe class for managing recipes.
+ * Represents a recipe with ingredients, instructions, and metadata.
+ * 
+ * @example
+ * ```typescript
+ * // Access recipe properties
+ * console.log(`Recipe: ${recipe.name}`);
+ * console.log(`Prep time: ${recipe.prepTime} minutes`);
+ * console.log(`Serves: ${recipe.servings}`);
+ * 
+ * // Work with ingredients
+ * recipe.ingredients.forEach(ingredient => {
+ *   console.log(`${ingredient.quantity} ${ingredient.name}`);
+ * });
+ * 
+ * // Update recipe rating
+ * recipe.rating = 5;
+ * await recipe.save();
+ * ```
+ * 
+ * @see {@link Ingredient} Ingredient class for recipe ingredients
+ * @see {@link RecipeCollection} RecipeCollection class for organizing recipes
  */
 export class Recipe {
 	public readonly identifier: string;

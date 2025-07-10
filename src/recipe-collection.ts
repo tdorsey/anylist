@@ -1,6 +1,6 @@
 import FormData from 'form-data';
-import {type AnyListContext} from './types';
-import uuid from './uuid';
+import {type AnyListContext} from '../lib/types';
+import uuid from '../lib/uuid';
 
 export type RecipeCollectionData = {
 	identifier?: string;

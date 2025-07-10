@@ -1,8 +1,8 @@
 import FormData from 'form-data';
-import {type AnyListContext} from './types';
+import {type AnyListContext} from '../lib/types';
 import {type MealPlanningCalendarEventLabel} from './meal-planning-calendar-label';
 import {type Recipe} from './recipe';
-import uuid from './uuid';
+import uuid from '../lib/uuid';
 
 export type MealPlanningCalendarEventData = {
 	identifier?: string;
