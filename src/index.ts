@@ -397,7 +397,7 @@ export class AnyList extends EventEmitter {
       }
     }
 
-    // Map and assign recipies
+    // Map and assign recipes
     this.recipes = decoded.recipeDataResponse.recipes.map((recipe: any) => new Recipe(recipe, {
       ...context,
       recipeDataId: this.recipeDataId,
