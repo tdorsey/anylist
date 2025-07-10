@@ -99,8 +99,8 @@ export class AnyList extends EventEmitter {
               ...options.headers,
             };
 
-            const path = options.url!.pathname;
-            if (path.startsWith('/data/')) {
+            const pathname = options.url!.pathname;
+            if (pathname.startsWith('/data/')) {
               options.responseType = 'buffer';
             }
           },
