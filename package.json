@@ -65,8 +65,7 @@
   "xo": {
     "ignores": [
       "docs",
-      "dist",
-      "src"
+      "dist"
     ],
     "rules": {
       "unicorn/prefer-module": "off",
