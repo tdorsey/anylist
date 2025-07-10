@@ -1,20 +1,9 @@
 import FormData from 'form-data';
-import {type AnyListContext} from '../lib/types';
-import {type MealPlanningCalendarEventLabel} from './meal-planning-calendar-label';
-import {type Recipe} from './recipe';
 import uuid from '../lib/uuid';
-
-export type MealPlanningCalendarEventData = {
-	identifier?: string;
-	title?: string;
-	date?: Date | string;
-	details?: string;
-	labelId?: string;
-	logicalTimestamp?: number;
-	orderAddedSortIndex?: number;
-	recipeId?: string;
-	recipeScaleFactor?: number;
-};
+import type {AnyListContext} from '../lib/types.d';
+import type {MealPlanningCalendarEventData} from './meal-planning-calendar-event.d';
+import type {MealPlanningCalendarEventLabel} from './meal-planning-calendar-label';
+import type {Recipe} from './recipe';
 
 /**
  * Meal Planning Calendar Event class.

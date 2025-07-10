@@ -11,78 +11,21 @@ import WS from 'ws';
 import * as protobuf from 'protobufjs';
 import FormData from 'form-data';
 import * as definitions from './definitions.json';
-import {List, type ListData} from './list';
-import {Item, type ItemData} from './item';
+import {List} from './list';
+import {Item} from './item';
 import uuid from '../lib/uuid';
-import {type AnyListContext} from '../lib/types';
-import {Recipe, type RecipeData} from './recipe';
-import {RecipeCollection, type RecipeCollectionData} from './recipe-collection';
-import {MealPlanningCalendarEvent, type MealPlanningCalendarEventData} from './meal-planning-calendar-event';
-import {MealPlanningCalendarEventLabel, type MealPlanningCalendarLabelData} from './meal-planning-calendar-label';
-
-/**
- * Configuration options for the AnyList client.
- * 
- * @example
- * ```typescript
- * const options: AnyListOptions = {
- *   email: 'user@example.com',
- *   password: 'your-password',
- *   credentialsFile: './my-anylist-credentials' // optional
- * };
- * ```
- */
-export type AnyListOptions = {
-	/** Your AnyList account email address */
-	email: string;
-	/** Your AnyList account password */
-	password: string;
-	/** 
-	 * Optional path to store authentication credentials.
-	 * Defaults to ~/.anylist_credentials 
-	 */
-	credentialsFile?: string | undefined;
-};
-
-// Credentials storage
-export type StoredCredentials = {
-	clientId?: string;
-	accessToken?: string;
-	refreshToken?: string;
-};
-
-// API Response types (partial - these would be extensive based on protobuf definitions)
-export type AuthTokenResponse = {
-	access_token: string;
-	refresh_token: string;
-};
-
-export type UserDataResponse = {
-	shoppingListsResponse: {
-		newLists: ListData[];
-	};
-	starterListsResponse: {
-		recentItemListsResponse: {
-			listResponses: Array<{
-				starterList: ListData;
-			}>;
-		};
-		favoriteItemListsResponse: {
-			listResponses: Array<{
-				starterList: ListData;
-			}>;
-		};
-	};
-	recipeDataResponse: {
-		recipes: RecipeData[];
-		recipeDataId: string;
-	};
-	mealPlanningCalendarResponse: {
-		events: MealPlanningCalendarEventData[];
-		labels: MealPlanningCalendarLabelData[];
-		calendarId: string;
-	};
-};
+import {Recipe} from './recipe';
+import {RecipeCollection} from './recipe-collection';
+import {MealPlanningCalendarEvent} from './meal-planning-calendar-event';
+import {MealPlanningCalendarEventLabel} from './meal-planning-calendar-label';
+import type {AnyListOptions, StoredCredentials, AuthTokenResponse, UserDataResponse} from './index.d';
+import type {ListData} from './list.d';
+import type {ItemData} from './item.d';
+import type {AnyListContext} from '../lib/types.d';
+import type {RecipeData} from './recipe.d';
+import type {RecipeCollectionData} from './recipe-collection.d';
+import type {MealPlanningCalendarEventData} from './meal-planning-calendar-event.d';
+import type {MealPlanningCalendarLabelData} from './meal-planning-calendar-label.d';
 
 // Nutritional info type
 export type NutritionalInfo = Record<string, string | number>;
@@ -663,18 +606,24 @@ class AuthenticatedWebSocket extends WS {
 
 // Re-export all classes and types for easy consumption
 
-export { type RecipeCollectionData};
+// Export types from definition files
+export type {AnyListOptions, StoredCredentials, AuthTokenResponse, UserDataResponse} from './index.d';
+export type {ItemData} from './item.d';
+export type {ListData} from './list.d';
+export type {IngredientData} from './ingredient.d';
+export type {RecipeData} from './recipe.d';
+export type {RecipeCollectionData} from './recipe-collection.d';
+export type {MealPlanningCalendarEventData} from './meal-planning-calendar-event.d';
+export type {MealPlanningCalendarLabelData} from './meal-planning-calendar-label.d';
+export type {AnyListContext} from '../lib/types.d';
 
-export {MealPlanningCalendarEvent, type MealPlanningCalendarEventData};
-export {MealPlanningCalendarEventLabel, type MealPlanningCalendarLabelData};
+// Export classes
+export {List} from './list';
+export {Item} from './item';
+export {Ingredient} from './ingredient';
+export {Recipe} from './recipe';
+export {RecipeCollection} from './recipe-collection';
+export {MealPlanningCalendarEvent} from './meal-planning-calendar-event';
+export {MealPlanningCalendarEventLabel} from './meal-planning-calendar-label';
 
 export default AnyList;
-export {type IngredientData, Ingredient} from './ingredient';
-
-export {List, type ListData} from './list';
-
-export {Item, type ItemData} from './item';
-
-export {Recipe, type RecipeData} from './recipe';
-
-export {RecipeCollection} from './recipe-collection';

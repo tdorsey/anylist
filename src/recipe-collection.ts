@@ -1,12 +1,7 @@
 import FormData from 'form-data';
-import {type AnyListContext} from '../lib/types';
 import uuid from '../lib/uuid';
-
-export type RecipeCollectionData = {
-	identifier?: string;
-	name?: string;
-	recipeIds?: string[];
-};
+import type {AnyListContext} from '../lib/types.d';
+import type {RecipeCollectionData} from './recipe-collection.d';
 
 /**
  * RecipeCollection class for managing recipe collections.

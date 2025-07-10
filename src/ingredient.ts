@@ -1,11 +1,5 @@
-import {type AnyListContext} from '../lib/types';
-
-export type IngredientData = {
-	rawIngredient?: string;
-	name?: string;
-	quantity?: string;
-	note?: string;
-};
+import type {AnyListContext} from '../lib/types.d';
+import type {IngredientData} from './ingredient.d';
 
 /**
  * Ingredient class for recipe ingredients.

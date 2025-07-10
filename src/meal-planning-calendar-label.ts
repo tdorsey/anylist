@@ -1,12 +1,4 @@
-// Update the interface in types.ts to match actual properties
-export type MealPlanningCalendarLabelData = {
-	identifier?: string;
-	calendarId?: string;
-	hexColor?: string;
-	logicalTimestamp?: number;
-	name?: string;
-	sortIndex?: number;
-};
+import type {MealPlanningCalendarLabelData} from './meal-planning-calendar-label.d';
 
 /**
  * Meal Planning Calendar Event Label class.

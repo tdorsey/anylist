@@ -1,31 +1,9 @@
 import FormData from 'form-data';
-import {type AnyListContext} from '../lib/types';
-import {Item, type ItemData} from './item';
+import {Item} from './item';
 import uuid from '../lib/uuid';
-
-/**
- * Data structure for shopping list information.
- * 
- * @example
- * ```typescript
- * const listData: ListData = {
- *   identifier: 'list-123',
- *   listId: 'parent-456',
- *   name: 'Grocery Shopping',
- *   items: []
- * };
- * ```
- */
-export type ListData = {
-	/** Unique identifier for the list */
-	identifier?: string;
-	/** Parent list ID if this is a sub-list */
-	listId?: string;
-	/** Display name of the list */
-	name?: string;
-	/** Array of items in this list */
-	items?: ItemData[];
-};
+import type {AnyListContext} from '../lib/types.d';
+import type {ItemData} from './item.d';
+import type {ListData} from './list.d';
 
 /**
  * Represents a shopping list with items and list management capabilities.
