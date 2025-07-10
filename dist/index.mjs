@@ -7214,8 +7214,8 @@ var AnyList = class extends EventEmitter {
               authorization: `Bearer ${this.accessToken}`,
               ...options2.headers
             };
-            const path2 = options2.url.pathname;
-            if (path2.startsWith("/data/")) {
+            const pathname = options2.url.pathname;
+            if (pathname.startsWith("/data/")) {
               options2.responseType = "buffer";
             }
           }
