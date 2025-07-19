@@ -1,0 +1,27 @@
+{
+  "name": "anylist-tests",
+  "version": "1.0.0",
+  "description": "Test suite for AnyList API (JavaScript and Python)",
+  "scripts": {
+    "test:js": "jest tests/javascript --testTimeout=10000",
+    "test:js:watch": "jest tests/javascript --watch",
+    "test:python": "cd python && python -m pytest test_specs.py -v",
+    "test:all": "npm run test:js && npm run test:python",
+    "lint:js": "xo lib/",
+    "lint:python": "cd tests/python && python -m flake8 anylist_python/ tests/ --max-line-length=88"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^29.7.0"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": [
+      "**/tests/javascript/**/*.js"
+    ],
+    "collectCoverageFrom": [
+      "lib/**/*.js"
+    ],
+    "coverageDirectory": "coverage/javascript"
+  }
+}
