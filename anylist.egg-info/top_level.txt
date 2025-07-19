@@ -1,0 +1,10 @@
+anylist
+conf
+db
+docker
+docs
+models
+services
+static
+templates
+tests
