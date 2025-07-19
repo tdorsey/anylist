@@ -98,3 +98,17 @@ typings/
 
 # VS Code files
 .vscode/
+
+# Test artifacts and cache
+tests/node_modules/
+tests/coverage/
+tests/python/.pytest_cache/
+tests/python/__pycache__/
+tests/python/anylist_python/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/

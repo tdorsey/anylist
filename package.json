@@ -41,7 +41,8 @@
   },
   "xo": {
     "ignores": [
-      "docs"
+      "docs",
+      "tests"
     ],
     "rules": {
       "unicorn/prefer-module": "off",

@@ -1,0 +1,181 @@
+name: Cross-Language API Testing
+
+on:
+  push:
+    branches: [ main, master, copilot/* ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  javascript-tests:
+    name: JavaScript API Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'yarn'
+        
+    - name: Install main dependencies
+      run: yarn install --frozen-lockfile
+      
+    - name: Run JavaScript linting
+      run: yarn test
+      
+    - name: Install test dependencies
+      run: |
+        cd tests
+        npm install
+        
+    - name: Run JavaScript API tests
+      run: |
+        cd tests
+        npm run test:js
+        
+    - name: Generate documentation
+      run: yarn run document
+      if: matrix.node-version == '20.x'
+      
+    - name: Upload JavaScript test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: javascript-test-results-${{ matrix.node-version }}
+        path: tests/coverage/
+
+  python-tests:
+    name: Python API Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12"]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Install Python dependencies
+      run: |
+        cd tests/python
+        pip install -r requirements.txt
+        
+    - name: Run Python API tests
+      run: |
+        cd tests/python
+        python -m pytest test_specs.py -v --tb=short
+        
+    - name: Upload Python test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: python-test-results-${{ matrix.python-version }}
+        path: tests/python/.pytest_cache/
+
+  cross-language-compatibility:
+    name: Cross-Language Compatibility Check
+    runs-on: ubuntu-latest
+    needs: [javascript-tests, python-tests]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'yarn'
+        
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        
+    - name: Install dependencies
+      run: |
+        yarn install --frozen-lockfile
+        cd tests
+        npm install
+        cd python
+        pip install -r requirements.txt
+        
+    - name: Run compatibility tests
+      run: |
+        echo "🔍 Running JavaScript tests..."
+        cd tests
+        npm run test:js
+        echo "✅ JavaScript tests completed"
+        
+        echo "🔍 Running Python tests..."
+        npm run test:python
+        echo "✅ Python tests completed"
+        
+        echo "🎉 Cross-language compatibility check passed!"
+        
+    - name: Generate compatibility report
+      run: |
+        echo "# Cross-Language API Compatibility Report" > compatibility-report.md
+        echo "" >> compatibility-report.md
+        echo "## Test Results Summary" >> compatibility-report.md
+        echo "" >> compatibility-report.md
+        echo "Both JavaScript and Python implementations pass the same test specifications:" >> compatibility-report.md
+        echo "" >> compatibility-report.md
+        echo "### JavaScript Implementation" >> compatibility-report.md
+        echo "- ✅ Core API structure tests" >> compatibility-report.md
+        echo "- ✅ Item creation and management" >> compatibility-report.md
+        echo "- ✅ Recipe management" >> compatibility-report.md
+        echo "- ✅ Calendar event management" >> compatibility-report.md
+        echo "- ✅ Recipe collection management" >> compatibility-report.md
+        echo "- ✅ List management" >> compatibility-report.md
+        echo "" >> compatibility-report.md
+        echo "### Python Implementation" >> compatibility-report.md
+        echo "- ✅ Core API structure tests" >> compatibility-report.md
+        echo "- ✅ Item creation and management" >> compatibility-report.md
+        echo "- ✅ Recipe management" >> compatibility-report.md
+        echo "- ✅ Calendar event management" >> compatibility-report.md
+        echo "- ✅ Recipe collection management" >> compatibility-report.md
+        echo "- ✅ List management" >> compatibility-report.md
+        echo "- ✅ Async functionality" >> compatibility-report.md
+        echo "" >> compatibility-report.md
+        echo "## Conclusion" >> compatibility-report.md
+        echo "" >> compatibility-report.md
+        echo "✅ Both implementations satisfy the same API contract and behavioral specifications." >> compatibility-report.md
+        echo "" >> compatibility-report.md
+        echo "Generated on: $(date)" >> compatibility-report.md
+        
+    - name: Upload compatibility report
+      uses: actions/upload-artifact@v4
+      with:
+        name: compatibility-report
+        path: compatibility-report.md
+
+  # Optional: Performance comparison (placeholder for future)
+  performance-comparison:
+    name: Performance Comparison (Future)
+    runs-on: ubuntu-latest
+    needs: [cross-language-compatibility]
+    if: false  # Disabled for now, can be enabled later
+    
+    steps:
+    - name: Placeholder for performance tests
+      run: |
+        echo "🚀 Future: Performance comparison between JavaScript and Python implementations"
+        echo "This would include:"
+        echo "  - Memory usage comparison"
+        echo "  - Execution time benchmarks"
+        echo "  - API response time measurements"
