@@ -16,7 +16,12 @@
   "license": "MIT",
   "author": "Max Isom <hi@maxisom.me> (https://maxisom.me/)",
   "scripts": {
-    "test": "xo",
+    "test": "npm run lint && npm run test:unit && npm run test:integration",
+    "test:unit": "jest tests/uuid.test.js tests/item.test.js",
+    "test:integration": "jest tests/integration.test.js",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "lint": "xo",
     "lint-fix": "xo --fix",
     "document": "documentation build lib/index.js -f html -o docs"
   },
@@ -32,16 +37,18 @@
   "devDependencies": {
     "documentation": "^12.1.4",
     "husky": "^4.3.8",
+    "jest": "^30.0.4",
     "xo": "^0.56.0"
   },
   "husky": {
     "hooks": {
-      "pre-commit": "yarn test && yarn run document"
+      "pre-commit": "npm test && npm run document"
     }
   },
   "xo": {
     "ignores": [
-      "docs"
+      "docs",
+      "tests"
     ],
     "rules": {
       "unicorn/prefer-module": "off",
@@ -50,6 +57,22 @@
       "import/extensions": "off",
       "unicorn/prefer-event-target": "off"
     }
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "lib/**/*.js",
+      "!lib/definitions.json"
+    ],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ]
   },
   "files": [
     "lib"
