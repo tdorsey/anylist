@@ -3,9 +3,57 @@
 
 # Playground
 dev.js
+dev.py
 
 # Generated documentation (created by CI)
 docs/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.conda/
+
+# Testing
+.tox/
+.coverage
+.pytest_cache/
+.hypothesis/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# uv
+.uv/
 
 # Logs
 logs
@@ -46,7 +94,7 @@ bower_components
 # Compiled binary addons (https://nodejs.org/api/addons.html)
 build/Release
 
-# Dependency directories
+# Dependency directories (Node.js legacy - now using Python)
 node_modules/
 jspm_packages/
 
@@ -72,7 +120,6 @@ typings/
 .yarn-integrity
 
 # dotenv environment variables file
-.env
 .env.test
 
 # parcel-bundler cache (https://parceljs.org/)
