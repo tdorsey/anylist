@@ -16,7 +16,9 @@
   "license": "MIT",
   "author": "Max Isom <hi@maxisom.me> (https://maxisom.me/)",
   "scripts": {
-    "test": "xo",
+    "test": "jest && xo",
+    "test:unit": "jest",
+    "test:lint": "xo",
     "lint-fix": "xo --fix",
     "document": "documentation build lib/index.js -f html -o docs"
   },
@@ -32,6 +34,7 @@
   "devDependencies": {
     "documentation": "^12.1.4",
     "husky": "^4.3.8",
+    "jest": "^30.0.4",
     "xo": "^0.56.0"
   },
   "husky": {
@@ -39,10 +42,19 @@
       "pre-commit": "yarn test && yarn run document"
     }
   },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverage": true,
+    "coverageDirectory": "coverage",
+    "coverageReporters": ["text", "lcov", "html"],
+    "testMatch": ["<rootDir>/test/**/*.test.js"]
+  },
   "xo": {
     "ignores": [
-      "docs"
+      "docs",
+      "coverage"
     ],
+    "envs": ["jest"],
     "rules": {
       "unicorn/prefer-module": "off",
       "unicorn/prefer-string-replace-all": "off",
