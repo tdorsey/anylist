@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: anylist
-Version: 0.0.0.dev0
+Version: 0.1.dev75+g1f47995.d20250719
 Summary: a wrapper for the AnyList api, written in Python
 Author: Tommy Dorsey
 License: Apache Software License 2.0
